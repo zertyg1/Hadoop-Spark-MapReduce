@@ -14,7 +14,6 @@ public class DataReducer extends Reducer<Text, Text, Text, Text> {
             combinedValues.append(value.toString()).append("; ");
         }
 
-        // Sortie : clé et valeurs concaténées
         context.write(key, new Text(combinedValues.toString()));
     }
 }
