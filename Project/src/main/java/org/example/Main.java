@@ -24,6 +24,7 @@ public class Main {
         }
 
         Configuration conf = new Configuration();
+        conf.setBoolean("mapreduce.skip.header.line.count", true);
 
         Path ratingsPath = new Path(args[0]);
         Path moviesPath = new Path(args[1]);
@@ -58,6 +59,7 @@ public class Main {
 
     private static boolean runPhase1(Configuration conf, Path inputPath, Path outputPath) throws Exception {
         Job job = Job.getInstance(conf, "Phase 1 - Highest Rated Movie");
+        job.getConfiguration().setBoolean("mapreduce.input.lineinputformat.skipheader", true);
         job.setJarByClass(Main.class);
         job.setMapperClass(HighestRatedMapper.class);
         job.setReducerClass(HighestRatedReducer.class);

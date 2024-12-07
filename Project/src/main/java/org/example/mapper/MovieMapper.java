@@ -8,16 +8,28 @@ import java.io.IOException;
 
 public class MovieMapper extends Mapper<LongWritable, Text, Text, Text> {
     @Override
-    public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
-        String line = value.toString();
-        if (line.startsWith("movieId")) return;
+    protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
+        try {
+            String line = value.toString();
 
-        String movieId = line.substring(0, line.indexOf(','));
-        String movieName = line.substring(line.indexOf(',') + 1);
-        if (movieName.contains(",")) {
-            movieName = movieName.substring(0, movieName.lastIndexOf(','));
+            if (line.startsWith("movieId")) {
+                return;
+            }
+
+            // Diviser seulement sur la première virgule pour garder le titre intact
+            int firstComma = line.indexOf(',');
+            if (firstComma != -1) {
+                String movieId = line.substring(0, firstComma).trim();
+                String rest = line.substring(firstComma + 1);
+                int secondComma = rest.lastIndexOf(',');
+                String title = rest;
+                if (secondComma != -1) {
+                    title = rest.substring(0, secondComma);
+                }
+                context.write(new Text(movieId), new Text("MOVIE|" + title.trim()));
+            }
+        } catch (Exception e) {
+            context.getCounter("Error", "Parse Error").increment(1);
         }
-
-        context.write(new Text(movieId), new Text("MOVIE|" + movieName.trim()));
     }
 }
