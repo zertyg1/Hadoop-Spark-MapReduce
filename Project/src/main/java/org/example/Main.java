@@ -25,32 +25,27 @@ public class Main {
 
         Configuration conf = new Configuration();
 
-        // Chemins des fichiers
         Path moviesPath = new Path(args[1]);
 
 
-        // Phase 1: Find Highest Rated Movie Per User
         Path phase1Output = new Path(args[1] + "/phase1");
         if (!runPhase1(conf, new Path(args[0]), phase1Output)) {
             System.err.println("Phase 1 failed.");
             System.exit(1);
         }
 
-        // Phase 2: Join Movies with Names
         Path phase2Output = new Path(args[1] + "/phase2");
         if (!runPhase2(conf, phase1Output, moviesPath, phase2Output)) {
             System.err.println("Phase 2 failed.");
             System.exit(1);
         }
 
-        // Phase 3: Count Users Per Movie
         Path phase3Output = new Path(args[1] + "/phase3");
         if (!runPhase3(conf, phase2Output, phase3Output)) {
             System.err.println("Phase 3 failed.");
             System.exit(1);
         }
 
-        // Phase 4: Group by Like Count
         if (!runPhase4(conf, phase3Output, new Path(args[2]))) {
             System.err.println("Phase 4 failed.");
             System.exit(1);
@@ -74,13 +69,11 @@ public class Main {
         return job.waitForCompletion(true);
     }
 
-    // Dans Main.java, modifiez runPhase2 :
     private static boolean runPhase2(Configuration conf, Path userMoviePath, Path moviePath, Path outputPath) throws Exception {
         Job job = Job.getInstance(conf, "Phase 2 - Join Movies with Names");
         job.setJarByClass(Main.class);
         job.setReducerClass(JoinReducer.class);
 
-        // Configuration pour les entrées multiples
         MultipleInputs.addInputPath(job, userMoviePath, TextInputFormat.class, UserMovieMapper.class);
         MultipleInputs.addInputPath(job, moviePath, TextInputFormat.class, MovieMapper.class);
 
