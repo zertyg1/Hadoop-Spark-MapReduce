@@ -19,34 +19,36 @@ import org.example.reducer.JoinReducer;
 public class Main {
     public static void main(String[] args) throws Exception {
         if (args.length < 4) {
-            System.err.println("Usage: Main <input path> <intermediate output path> <final output path>");
+            System.err.println("Usage: Main <ratings_path> <movies_path> <intermediate_path> <final_path>");
             System.exit(-1);
         }
 
         Configuration conf = new Configuration();
 
+        Path ratingsPath = new Path(args[0]);
         Path moviesPath = new Path(args[1]);
+        Path intermediatePath = new Path(args[2]);
+        Path finalOutputPath = new Path(args[3]);
 
-
-        Path phase1Output = new Path(args[1] + "/phase1");
-        if (!runPhase1(conf, new Path(args[0]), phase1Output)) {
+        Path phase1Output = new Path(intermediatePath, "phase1");
+        if (!runPhase1(conf, ratingsPath, phase1Output)) {
             System.err.println("Phase 1 failed.");
             System.exit(1);
         }
 
-        Path phase2Output = new Path(args[1] + "/phase2");
+        Path phase2Output = new Path(intermediatePath, "phase2");
         if (!runPhase2(conf, phase1Output, moviesPath, phase2Output)) {
             System.err.println("Phase 2 failed.");
             System.exit(1);
         }
 
-        Path phase3Output = new Path(args[1] + "/phase3");
+        Path phase3Output = new Path(intermediatePath, "phase3");
         if (!runPhase3(conf, phase2Output, phase3Output)) {
             System.err.println("Phase 3 failed.");
             System.exit(1);
         }
 
-        if (!runPhase4(conf, phase3Output, new Path(args[2]))) {
+        if (!runPhase4(conf, phase3Output, finalOutputPath)) {
             System.err.println("Phase 4 failed.");
             System.exit(1);
         }
